@@ -21,6 +21,11 @@ source .venv/bin/activate
 python -m app.bot
 ```
 
+## Logging & analytics
+- Локально пишем логи в `logs/bot.log` (ротация по 1МБ, 5 бэкапов).
+- В `APPS_SCRIPT_URL` отправляем заявки с полями `name`, `email`, `phone`, `message`, `source`, `lang`, `user_id` — можно логировать в Google Sheets на стороне Apps Script.
+- Для автоотчётов: добавь логику на Apps Script (cron-триггеры) для агрегации и отправки писем/уведомлений.
+
 ## Notes
 - Игнорируются: `.venv/`, `.env`, `__pycache__/`, IDE-файлы (см. `.gitignore`).
 - Если требуется другая версия Python, убедитесь, что `aiogram==2.25.1` совместима (Python 3.11).
