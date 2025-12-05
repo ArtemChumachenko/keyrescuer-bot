@@ -7,12 +7,12 @@ def t(lang: Lang, key: str) -> str:
     texts = {
         "start": {
             Lang.RU: (
-                "Привет! Я бот KeyRescuer.\n"
+                "Привет!!!!!!!!!!!!!!!!! Я бот KeyRescuer.\n"
                 "Я помогу оформить заявку на выезд локсмита.\n\n"
                 "Пожалуйста, выберите язык:"
             ),
             Lang.EN: (
-                "Hi! I'm the KeyRescuer bot.\n"
+                "Hi!!!!!!!!!!!!!!!!!! I'm the KeyRescuer bot.\n"
                 "I will help you create a locksmith service request.\n\n"
                 "Please choose your language:"
             ),
