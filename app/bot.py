@@ -124,6 +124,8 @@ async def process_message(message: types.Message, state: FSMContext):
         "phone": phone,
         "message": msg,
         "source": "telegram-bot",
+        "lang": lang.value,
+        "user_id": message.from_user.id,
     }
 
     try:
