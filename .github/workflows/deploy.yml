@@ -3,7 +3,7 @@ name: Deploy KeyRescuer Bot
 on:
   push:
     branches:
-      - main    # если у тебя ветка master — поменяй на master
+      - main # если у тебя ветка master — поменяй на master
 
 jobs:
   deploy:
@@ -13,19 +13,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          echo "Host ${{ secrets.SSH_HOST }}" >> ~/.ssh/config
-          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Deploy to server
         run: >
-          ssh -i ~/.ssh/id_ed25519
-          ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
-          "cd /opt/keyrescuer-bot &&
-           git pull &&
-           /usr/bin/sudo systemctl restart keyrescuer-bot"
-
+          ssh -o StrictHostKeyChecking=no
+          ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}
+          'cd /opt/keyrescuer-bot && git pull && sudo systemctl restart keyrescuer-bot'
