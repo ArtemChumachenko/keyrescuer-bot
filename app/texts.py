@@ -7,12 +7,12 @@ def t(lang: Lang, key: str) -> str:
     texts = {
         "start": {
             Lang.RU: (
-                "Привет!!!!!!!!!!!!!!!!! Я бот KeyRescuer.\n"
+                "Привет! Я бот KeyRescuer.\n"
                 "Я помогу оформить заявку на выезд локсмита.\n\n"
                 "Пожалуйста, выберите язык:"
             ),
             Lang.EN: (
-                "Hi!!!!!!!!!!!!!!!!!! I'm the KeyRescuer bot.\n"
+                "Hi! I'm the KeyRescuer bot.\n"
                 "I will help you create a locksmith service request.\n\n"
                 "Please choose your language:"
             ),
@@ -26,12 +26,12 @@ def t(lang: Lang, key: str) -> str:
             Lang.EN: "Please enter your phone number:",
         },
         "ask_email": {
-            Lang.RU: "Укажите, пожалуйста, email (или напишите «нет»):",
-            Lang.EN: "Please enter your email (or type 'no'):",
+            Lang.RU: "Укажите, пожалуйста, email:",
+            Lang.EN: "Please enter your email:",
         },
         "ask_message": {
-            Lang.RU: "Коротко опишите ситуацию (дверь/авто/замок и т.п.):",
-            Lang.EN: "Briefly describe your situation (door/car/lock etc.):",
+            Lang.RU: "Опишите ситуацию (дверь/авто/замок и т.п.):",
+            Lang.EN: "Describe your situation (door/car/lock etc.):",
         },
         "thanks": {
             Lang.RU: (
