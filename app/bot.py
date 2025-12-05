@@ -1,5 +1,6 @@
 import logging
 import os
+from logging.handlers import RotatingFileHandler
 
 import requests
 from aiogram import Bot, Dispatcher, executor, types
@@ -10,10 +11,18 @@ from dotenv import load_dotenv
 from .states import Lang, LeadForm
 from .texts import language_keyboard, t
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+LOGS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+os.makedirs(LOGS_DIR, exist_ok=True)
+
+LOG_FILE = os.path.join(LOGS_DIR, "bot.log")
+log_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+file_handler = RotatingFileHandler(LOG_FILE, maxBytes=1_000_000, backupCount=5, encoding="utf-8")
+file_handler.setFormatter(log_formatter)
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(log_formatter)
+
+logging.basicConfig(level=logging.INFO, handlers=[file_handler, stream_handler])
 logger = logging.getLogger(__name__)
 
 load_dotenv()
