@@ -35,11 +35,8 @@ dp = Dispatcher(bot, storage=storage)
 @dp.message_handler(commands=["start"])
 async def cmd_start(message: types.Message, state: FSMContext):
     await state.finish()
-    text = (
-        "KeyRescuer — mobile locksmith service.\n\n"
-        "KeyRescuer — мобильный сервис по вскрытию и замене замков.\n\n"
-        "Please choose your language / Пожалуйста, выберите язык:"
-    )
+    # Показываем приветствие на двух языках, используя тексты из app/texts.py
+    text = f"{t(Lang.EN, 'start')}\n\n{t(Lang.RU, 'start')}"
     await message.answer(text, reply_markup=language_keyboard())
     await LeadForm.LANG.set()
 
