@@ -1,4 +1,3 @@
-import code
 import logging
 import os
 from logging.handlers import RotatingFileHandler
@@ -147,15 +146,13 @@ async def process_service(callback_query: types.CallbackQuery, state: FSMContext
     await state.update_data(service=service)
 
     # 👇 ЛОГИРУЕМ ВЫБОР ТИПА СЕРВИСА
-    # здесь нет message.text, поэтому логируем как "callback: service_auto" и т.п.
-    fake_message = types.Message(
-        message_id=callback_query.message.message_id,
-        date=callback_query.message.date,
-        chat=callback_query.message.chat,
+    await log_dialog(
+        message=None,
+        step="service",
+        language=lang_code,
         text=f"[callback] {callback_query.data}",
-        from_user=callback_query.from_user
+        user=callback_query.from_user,
     )
-    await log_dialog(fake_message, step="service", language=lang_code)
 
     await bot.answer_callback_query(callback_query.id)
 
@@ -194,14 +191,13 @@ async def process_auto_make(callback_query: types.CallbackQuery, state: FSMConte
     await state.update_data(auto_make=auto_make)
 
     # 👇 ЛОГИРУЕМ ВЫБОР МАРКИ
-    fake_message = types.Message(
-        message_id=callback_query.message.message_id,
-        date=callback_query.message.date,
-        chat=callback_query.message.chat,
+    await log_dialog(
+        message=None,
+        step="auto_make",
+        language=lang_code,
         text=f"[callback] auto_make:{auto_make}",
-        from_user=callback_query.from_user
+        user=callback_query.from_user,
     )
-    await log_dialog(fake_message, step="auto_make", language=lang_code)
 
     models = AUTO_MODELS.get(auto_make, [])
     kb = paginated_keyboard(models or ["Other"], "auto_model", 0)
@@ -236,14 +232,13 @@ async def process_auto_model(callback_query: types.CallbackQuery, state: FSMCont
     await state.update_data(auto_model=auto_model)
 
     # 👇 ЛОГИРУЕМ ВЫБОР МОДЕЛИ
-    fake_message = types.Message(
-        message_id=callback_query.message.message_id,
-        date=callback_query.message.date,
-        chat=callback_query.message.chat,
+    await log_dialog(
+        message=None,
+        step="auto_model",
+        language=lang_code,
         text=f"[callback] auto_model:{auto_model}",
-        from_user=callback_query.from_user
+        user=callback_query.from_user,
     )
-    await log_dialog(fake_message, step="auto_model", language=lang_code)
 
     kb = paginated_keyboard(AUTO_YEARS, "auto_year", 0)
 
@@ -274,14 +269,13 @@ async def process_auto_year(callback_query: types.CallbackQuery, state: FSMConte
     await state.update_data(auto_year=value)
 
     # 👇 ЛОГИРУЕМ ВЫБОР ГОДА
-    fake_message = types.Message(
-        message_id=callback_query.message.message_id,
-        date=callback_query.message.date,
-        chat=callback_query.message.chat,
+    await log_dialog(
+        message=None,
+        step="auto_year",
+        language=lang_code,
         text=f"[callback] auto_year:{value}",
-        from_user=callback_query.from_user
+        user=callback_query.from_user,
     )
-    await log_dialog(fake_message, step="auto_year", language=lang_code)
 
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(
@@ -369,9 +363,9 @@ async def process_email(message: types.Message, state: FSMContext):
 async def process_message(message: types.Message, state: FSMContext):
     data = await state.get_data()
     lang: Lang = data.get("lang", Lang.EN)
-    # lang_code = getattr(lang, "value", str(lang))
+    lang_code = getattr(lang, "value", str(lang))
 
-    await log_dialog(message, step="message", language=lang-code)
+    await log_dialog(message, step="message", language=lang_code)
 
     await state.update_data(message=(message.text or "").strip())
     await message.answer(t(lang, "ask_email"))
