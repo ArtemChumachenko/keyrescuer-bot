@@ -22,20 +22,20 @@ def t(lang: Lang, key: str) -> str:
             Lang.EN: "What is your name?",
         },
         "ask_service": {
-            Lang.RU: "Что у вас случилось или какие локсмит услуги вам нужны?",
-            Lang.EN: "What happened or which locksmith service do you need?",
+            Lang.RU: "Какие локсмит услуги вам нужны?",
+            Lang.EN: "Which locksmith service do you need?",
         },
         "service_auto": {
             Lang.RU: "Авто",
-            Lang.EN: "Auto",
+            Lang.EN: "Automotive",
         },
         "service_home": {
             Lang.RU: "Дом",
-            Lang.EN: "Home",
+            Lang.EN: "Residential",
         },
         "service_office": {
             Lang.RU: "Офис",
-            Lang.EN: "Office",
+            Lang.EN: "Commercial",
         },
         "ask_auto_make": {
             Lang.RU: "Выберите марку авто:",
@@ -58,8 +58,8 @@ def t(lang: Lang, key: str) -> str:
             Lang.EN: "Please enter your email:",
         },
         "ask_message": {
-            Lang.RU: "Опишите ситуацию (дверь/авто/замок и т.п.):",
-            Lang.EN: "Describe your situation (door/car/lock etc.):",
+            Lang.RU: "Опишите свою ситуацию, что конкретно случилось:",
+            Lang.EN: "Describe your situation, what exactly happened:",
         },
         "thanks": {
             Lang.RU: (
