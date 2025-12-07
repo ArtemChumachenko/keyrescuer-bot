@@ -239,24 +239,11 @@ async def process_phone(message: types.Message, state: FSMContext):
         "office": t(lang, "service_office"),
     }.get(service, service)
 
-    details = []
-    if service_label:
-        label = "Service" if lang == Lang.EN else "Услуга"
-        details.append(f"{label}: {service_label}")
-    if service == "auto":
-        auto_label = "Auto" if lang == Lang.EN else "Авто"
-        details.append(f"{auto_label}: {auto_make} {auto_model} {auto_year}".strip())
-    if msg:
-        msg_label = "Issue" if lang == Lang.EN else "Описание"
-        details.append(f"{msg_label}: {msg}")
-
-    full_message = "\n".join(details) if details else msg
-
     payload = {
         "name": name,
         "email": email,
         "phone": data.get("phone", ""),
-        "message": full_message,
+        "message": msg,
         "service": service_label,
         "auto_make": auto_make,
         "auto_model": auto_model,
