@@ -1,3 +1,4 @@
+import code
 import logging
 import os
 from logging.handlers import RotatingFileHandler
@@ -7,6 +8,7 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from dotenv import load_dotenv
+from app.gsheet_client import log_dialog
 
 from .states import Lang, LeadForm
 from .texts import language_keyboard, service_keyboard, t
@@ -96,7 +98,6 @@ def paginated_keyboard(items: list[str], prefix: str, page: int) -> types.Inline
 @dp.message_handler(commands=["start"])
 async def cmd_start(message: types.Message, state: FSMContext):
     await state.finish()
-    # Показываем приветствие на двух языках, используя тексты из app/texts.py
     text = f"{t(Lang.EN, 'start')}\n\n{t(Lang.RU, 'start')}"
     await message.answer(text, reply_markup=language_keyboard())
     await LeadForm.LANG.set()
@@ -122,11 +123,14 @@ async def process_language(callback_query: types.CallbackQuery, state: FSMContex
     await bot.send_message(callback_query.from_user.id, t(lang, "ask_name"))
     await LeadForm.NAME.set()
 
-
 @dp.message_handler(state=LeadForm.NAME)
 async def process_name(message: types.Message, state: FSMContext):
     data = await state.get_data()
     lang: Lang = data.get("lang", Lang.EN)
+    lang_code = getattr(lang, "value", str(lang))  # 'en' / 'ru' и т.п.
+
+    # 👇 ЛОГИРУЕМ ШАГ "name"
+    await log_dialog(message, step="name", language=lang_code)
 
     await state.update_data(name=(message.text or "").strip())
     await message.answer(t(lang, "ask_service"), reply_markup=service_keyboard(lang))
@@ -137,17 +141,37 @@ async def process_name(message: types.Message, state: FSMContext):
 async def process_service(callback_query: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     lang: Lang = data.get("lang", Lang.EN)
-    service = callback_query.data.replace("service_", "")
+    lang_code = getattr(lang, "value", str(lang))
 
+    service = callback_query.data.replace("service_", "")
     await state.update_data(service=service)
+
+    # 👇 ЛОГИРУЕМ ВЫБОР ТИПА СЕРВИСА
+    # здесь нет message.text, поэтому логируем как "callback: service_auto" и т.п.
+    fake_message = types.Message(
+        message_id=callback_query.message.message_id,
+        date=callback_query.message.date,
+        chat=callback_query.message.chat,
+        text=f"[callback] {callback_query.data}",
+        from_user=callback_query.from_user
+    )
+    await log_dialog(fake_message, step="service", language=lang_code)
+
     await bot.answer_callback_query(callback_query.id)
 
     if service == "auto":
         kb = paginated_keyboard(AUTO_MAKES, "auto_make", 0)
-        await bot.send_message(callback_query.from_user.id, t(lang, "ask_auto_make"), reply_markup=kb)
+        await bot.send_message(
+            callback_query.from_user.id,
+            t(lang, "ask_auto_make"),
+            reply_markup=kb
+        )
         await LeadForm.AUTO_MAKE.set()
     else:
-        await bot.send_message(callback_query.from_user.id, t(lang, "ask_message"))
+        await bot.send_message(
+            callback_query.from_user.id,
+            t(lang, "ask_message")
+        )
         await LeadForm.MESSAGE.set()
 
 
@@ -155,6 +179,8 @@ async def process_service(callback_query: types.CallbackQuery, state: FSMContext
 async def process_auto_make(callback_query: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     lang: Lang = data.get("lang", Lang.EN)
+    lang_code = getattr(lang, "value", str(lang))
+
     _, action, value = callback_query.data.split(":", 2)
 
     if action == "page":
@@ -166,11 +192,26 @@ async def process_auto_make(callback_query: types.CallbackQuery, state: FSMConte
 
     auto_make = value
     await state.update_data(auto_make=auto_make)
+
+    # 👇 ЛОГИРУЕМ ВЫБОР МАРКИ
+    fake_message = types.Message(
+        message_id=callback_query.message.message_id,
+        date=callback_query.message.date,
+        chat=callback_query.message.chat,
+        text=f"[callback] auto_make:{auto_make}",
+        from_user=callback_query.from_user
+    )
+    await log_dialog(fake_message, step="auto_make", language=lang_code)
+
     models = AUTO_MODELS.get(auto_make, [])
     kb = paginated_keyboard(models or ["Other"], "auto_model", 0)
 
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, t(lang, "ask_auto_model"), reply_markup=kb)
+    await bot.send_message(
+        callback_query.from_user.id,
+        t(lang, "ask_auto_model"),
+        reply_markup=kb
+    )
     await LeadForm.AUTO_MODEL.set()
 
 
@@ -178,6 +219,8 @@ async def process_auto_make(callback_query: types.CallbackQuery, state: FSMConte
 async def process_auto_model(callback_query: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     lang: Lang = data.get("lang", Lang.EN)
+    lang_code = getattr(lang, "value", str(lang))
+
     _, action, value = callback_query.data.split(":", 2)
 
     if action == "page":
@@ -191,10 +234,25 @@ async def process_auto_model(callback_query: types.CallbackQuery, state: FSMCont
 
     auto_model = value
     await state.update_data(auto_model=auto_model)
+
+    # 👇 ЛОГИРУЕМ ВЫБОР МОДЕЛИ
+    fake_message = types.Message(
+        message_id=callback_query.message.message_id,
+        date=callback_query.message.date,
+        chat=callback_query.message.chat,
+        text=f"[callback] auto_model:{auto_model}",
+        from_user=callback_query.from_user
+    )
+    await log_dialog(fake_message, step="auto_model", language=lang_code)
+
     kb = paginated_keyboard(AUTO_YEARS, "auto_year", 0)
 
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, t(lang, "ask_auto_year"), reply_markup=kb)
+    await bot.send_message(
+        callback_query.from_user.id,
+        t(lang, "ask_auto_year"),
+        reply_markup=kb
+    )
     await LeadForm.AUTO_YEAR.set()
 
 
@@ -202,6 +260,8 @@ async def process_auto_model(callback_query: types.CallbackQuery, state: FSMCont
 async def process_auto_year(callback_query: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     lang: Lang = data.get("lang", Lang.EN)
+    lang_code = getattr(lang, "value", str(lang))
+
     _, action, value = callback_query.data.split(":", 2)
 
     if action == "page":
@@ -212,8 +272,22 @@ async def process_auto_year(callback_query: types.CallbackQuery, state: FSMConte
         return
 
     await state.update_data(auto_year=value)
+
+    # 👇 ЛОГИРУЕМ ВЫБОР ГОДА
+    fake_message = types.Message(
+        message_id=callback_query.message.message_id,
+        date=callback_query.message.date,
+        chat=callback_query.message.chat,
+        text=f"[callback] auto_year:{value}",
+        from_user=callback_query.from_user
+    )
+    await log_dialog(fake_message, step="auto_year", language=lang_code)
+
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, t(lang, "ask_message"))
+    await bot.send_message(
+        callback_query.from_user.id,
+        t(lang, "ask_message")
+    )
     await LeadForm.MESSAGE.set()
 
 
@@ -221,6 +295,10 @@ async def process_auto_year(callback_query: types.CallbackQuery, state: FSMConte
 async def process_phone(message: types.Message, state: FSMContext):
     data = await state.get_data()
     lang: Lang = data.get("lang", Lang.EN)
+    lang_code = getattr(lang, "value", str(lang))
+
+    # 👇 ЛОГИРУЕМ ТЕЛЕФОН
+    await log_dialog(message, step="phone", language=lang_code)
 
     await state.update_data(phone=(message.text or "").strip())
     data = await state.get_data()
@@ -274,10 +352,13 @@ async def process_phone(message: types.Message, state: FSMContext):
 async def process_email(message: types.Message, state: FSMContext):
     data = await state.get_data()
     lang: Lang = data.get("lang", Lang.EN)
+    lang_code = getattr(lang, "value", str(lang))
 
     email = (message.text or "").strip()
     if email.lower() in ["нет", "no", "none", "n/a", "не знаю"]:
         email = ""
+
+    await log_dialog(message, step="e-mail", language=lang_code)
 
     await state.update_data(email=email)
     await message.answer(t(lang, "ask_phone"))
@@ -288,6 +369,9 @@ async def process_email(message: types.Message, state: FSMContext):
 async def process_message(message: types.Message, state: FSMContext):
     data = await state.get_data()
     lang: Lang = data.get("lang", Lang.EN)
+    # lang_code = getattr(lang, "value", str(lang))
+
+    await log_dialog(message, step="message", language=lang-code)
 
     await state.update_data(message=(message.text or "").strip())
     await message.answer(t(lang, "ask_email"))
