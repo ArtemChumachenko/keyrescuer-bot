@@ -76,8 +76,8 @@ def t(lang: Lang, key: str) -> str:
             Lang.EN: "An error occurred while sending your request. Please try again later.",
         },
         "restart_hint": {
-            Lang.RU: "Если хотите оформить новую заявку — отправьте команду /start.",
-            Lang.EN: "If you want to create a new request, send /start.",
+            Lang.RU: "Для оформления новой заявки — отправьте команду /start.",
+            Lang.EN: "To create a new request, send /start.",
         },
         "cancel": {
             Lang.RU: "Диалог отменён. Чтобы начать заново — отправьте /start.",
