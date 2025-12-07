@@ -21,6 +21,34 @@ def t(lang: Lang, key: str) -> str:
             Lang.RU: "Как вас зовут?",
             Lang.EN: "What is your name?",
         },
+        "ask_service": {
+            Lang.RU: "Что у вас случилось или какие локсмит услуги вам нужны?",
+            Lang.EN: "What happened or which locksmith service do you need?",
+        },
+        "service_auto": {
+            Lang.RU: "Авто",
+            Lang.EN: "Auto",
+        },
+        "service_home": {
+            Lang.RU: "Дом",
+            Lang.EN: "Home",
+        },
+        "service_office": {
+            Lang.RU: "Офис",
+            Lang.EN: "Office",
+        },
+        "ask_auto_make": {
+            Lang.RU: "Выберите марку авто:",
+            Lang.EN: "Select your car make:",
+        },
+        "ask_auto_model": {
+            Lang.RU: "Выберите модель авто:",
+            Lang.EN: "Select your car model:",
+        },
+        "ask_auto_year": {
+            Lang.RU: "Укажите год выпуска авто:",
+            Lang.EN: "Choose your car year:",
+        },
         "ask_phone": {
             Lang.RU: "Укажите, пожалуйста, номер телефона:",
             Lang.EN: "Please enter your phone number:",
@@ -64,5 +92,15 @@ def language_keyboard() -> types.InlineKeyboardMarkup:
     kb.add(
         types.InlineKeyboardButton("🇷🇺 Русский", callback_data="lang_ru"),
         types.InlineKeyboardButton("🇺🇸 English", callback_data="lang_en"),
+    )
+    return kb
+
+
+def service_keyboard(lang: Lang) -> types.InlineKeyboardMarkup:
+    kb = types.InlineKeyboardMarkup()
+    kb.add(
+        types.InlineKeyboardButton(t(lang, "service_auto"), callback_data="service_auto"),
+        types.InlineKeyboardButton(t(lang, "service_home"), callback_data="service_home"),
+        types.InlineKeyboardButton(t(lang, "service_office"), callback_data="service_office"),
     )
     return kb

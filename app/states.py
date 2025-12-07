@@ -11,6 +11,10 @@ class Lang(str, Enum):
 class LeadForm(StatesGroup):
     LANG = State()
     NAME = State()
-    PHONE = State()
-    EMAIL = State()
+    SERVICE = State()
+    AUTO_MAKE = State()
+    AUTO_MODEL = State()
+    AUTO_YEAR = State()
     MESSAGE = State()
+    EMAIL = State()
+    PHONE = State()
