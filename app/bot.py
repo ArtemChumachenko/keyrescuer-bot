@@ -380,7 +380,7 @@ async def process_urgency(callback_query: types.CallbackQuery, state: FSMContext
     lang: Lang = data.get("lang", Lang.EN)
     lang_code = getattr(lang, "value", str(lang))
 
-    urgency_value = "urgent" if callback_query.data == "urgency_urgent" else "not urgent"
+    urgency_value = "yes" if callback_query.data == "urgency_urgent" else "no"
 
     await state.update_data(urgency=urgency_value)
 
