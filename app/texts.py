@@ -61,6 +61,18 @@ def t(lang: Lang, key: str) -> str:
             Lang.RU: "Опишите свою ситуацию, что конкретно случилось:",
             Lang.EN: "Describe your situation, what exactly happened:",
         },
+        "ask_urgency": {
+            Lang.RU: "Насколько срочно требуется помощь?",
+            Lang.EN: "How urgent is your request?",
+        },
+        "urgency_urgent": {
+            Lang.RU: "Срочно",
+            Lang.EN: "Urgent",
+        },
+        "urgency_not_urgent": {
+            Lang.RU: "Не срочно",
+            Lang.EN: "Not urgent",
+        },
         "thanks": {
             Lang.RU: (
                 "Спасибо! Ваша заявка отправлена.\n"
@@ -102,5 +114,14 @@ def service_keyboard(lang: Lang) -> types.InlineKeyboardMarkup:
         types.InlineKeyboardButton(t(lang, "service_auto"), callback_data="service_auto"),
         types.InlineKeyboardButton(t(lang, "service_home"), callback_data="service_home"),
         types.InlineKeyboardButton(t(lang, "service_office"), callback_data="service_office"),
+    )
+    return kb
+
+
+def urgency_keyboard(lang: Lang) -> types.InlineKeyboardMarkup:
+    kb = types.InlineKeyboardMarkup()
+    kb.add(
+        types.InlineKeyboardButton(t(lang, "urgency_urgent"), callback_data="urgency_urgent"),
+        types.InlineKeyboardButton(t(lang, "urgency_not_urgent"), callback_data="urgency_not_urgent"),
     )
     return kb

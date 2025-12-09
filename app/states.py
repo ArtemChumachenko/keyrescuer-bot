@@ -16,5 +16,6 @@ class LeadForm(StatesGroup):
     AUTO_MODEL = State()
     AUTO_YEAR = State()
     MESSAGE = State()
+    URGENCY = State()
     EMAIL = State()
     PHONE = State()

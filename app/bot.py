@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from app.gsheet_client import log_dialog
 
 from .states import Lang, LeadForm
-from .texts import language_keyboard, service_keyboard, t
+from .texts import language_keyboard, service_keyboard, t, urgency_keyboard
 
 LOGS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
 os.makedirs(LOGS_DIR, exist_ok=True)
@@ -304,6 +304,7 @@ async def process_phone(message: types.Message, state: FSMContext):
     auto_year = data.get("auto_year", "")
     email = data.get("email", "")
     msg = data.get("message", "")
+    urgency = data.get("urgency", "")
 
     service_label = {
         "auto": t(lang, "service_auto"),
@@ -320,6 +321,7 @@ async def process_phone(message: types.Message, state: FSMContext):
         "auto_make": auto_make,
         "auto_model": auto_model,
         "auto_year": auto_year,
+        "urgent": urgency,
         "source": "telegram-bot",
         "lang": lang.value,
         "user_id": message.from_user.id,
@@ -368,7 +370,30 @@ async def process_message(message: types.Message, state: FSMContext):
     await log_dialog(message, step="message", language=lang_code)
 
     await state.update_data(message=(message.text or "").strip())
-    await message.answer(t(lang, "ask_email"))
+    await message.answer(t(lang, "ask_urgency"), reply_markup=urgency_keyboard(lang))
+    await LeadForm.URGENCY.set()
+
+
+@dp.callback_query_handler(lambda c: c.data in ("urgency_urgent", "urgency_not_urgent"), state=LeadForm.URGENCY)
+async def process_urgency(callback_query: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    lang: Lang = data.get("lang", Lang.EN)
+    lang_code = getattr(lang, "value", str(lang))
+
+    urgency_value = "urgent" if callback_query.data == "urgency_urgent" else "not urgent"
+
+    await state.update_data(urgency=urgency_value)
+
+    await log_dialog(
+        message=None,
+        step="urgency",
+        language=lang_code,
+        text=f"[callback] {callback_query.data}",
+        user=callback_query.from_user,
+    )
+
+    await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(callback_query.from_user.id, t(lang, "ask_email"))
     await LeadForm.EMAIL.set()
 
 
